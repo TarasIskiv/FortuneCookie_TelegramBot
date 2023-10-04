@@ -1,5 +1,8 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace FortuneCookie.Core.Models;
 
+[Table("UserDetails")]
 public class UserDetails
 {
     public int Id { get; set; }

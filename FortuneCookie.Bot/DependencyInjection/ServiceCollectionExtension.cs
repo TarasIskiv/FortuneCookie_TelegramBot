@@ -1,3 +1,4 @@
+using FortuneCookie.Core.Models;
 using FortuneCookie.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -14,6 +15,7 @@ public static class ServiceCollectionExtension
         serviceCollection
             .AddLogging()
             .AddDbContext<FortuneCookieContext>(options => options.UseNpgsql(databaseConnection?.Get<string>()));
+
     }
 
     private static IConfiguration GetConfiguration()
