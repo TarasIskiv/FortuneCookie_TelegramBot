@@ -6,4 +6,13 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\FortuneCookie.Core\FortuneCookie.Core.csproj" />
+      <ProjectReference Include="..\FortuneCookie.Repository\FortuneCookie.Repository.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Telegram.Bot" Version="19.0.0" />
+    </ItemGroup>
+
 </Project>

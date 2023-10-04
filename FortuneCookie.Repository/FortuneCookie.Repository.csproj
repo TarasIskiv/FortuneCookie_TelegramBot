@@ -6,4 +6,9 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\FortuneCookie.Core\FortuneCookie.Core.csproj" />
+      <ProjectReference Include="..\FortuneCookie.Database\FortuneCookie.Database.csproj" />
+    </ItemGroup>
+
 </Project>

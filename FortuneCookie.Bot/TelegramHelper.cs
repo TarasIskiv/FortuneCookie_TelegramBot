@@ -1,4 +1,6 @@
 using FortuneCookie.Core.Responses;
+using FortuneCookie.Logic.Abstraction;
+using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -7,27 +9,21 @@ namespace FortuneCookie.Bot;
 
 public class TelegramHelper
 {
-    private const string _startCommand = "/start";
-    public async Task ErrorHandler(ITelegramBotClient client, Exception update, CancellationToken cancellationToken)
+    private readonly ITelegramService _telegramService;
+    private readonly ILogger _logger;
+
+    public TelegramHelper(ITelegramService telegramService, ILoggerFactory logger)
     {
-        throw new NotImplementedException();
+        _telegramService = telegramService;
+        _logger = logger.CreateLogger<Program>();
+    }
+    public async Task ErrorHandler(ITelegramBotClient client, Exception exception, CancellationToken cancellationToken)
+    {
+        await Task.Run(() => _logger.LogError(exception.Message));
     }
 
     public async Task UpdateHandler(ITelegramBotClient client, Update update, CancellationToken cancellationToken)
     {
-
-        if (!(update.Type == UpdateType.Message && update.Message!.Type == MessageType.Text)) return;
-        var id = update!.Message!.Chat.Id;
-        var text = update!.Message!.Text;
-        var userName = update.Message.Chat.FirstName;
-
-        if (Equals(text, _startCommand))
-        {
-            //welcome command
-        }
-        else
-        {
-            await client.SendTextMessageAsync(id, BotResponse.GetDefaultResponse());
-        }
+        await _telegramService.ReceiveMessage(update);
     }
 }

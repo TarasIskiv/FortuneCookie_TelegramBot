@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FortuneCookie.Core.Models;
 
-[Table("UserDetails")]
+[Table("UsersDetails")]
 public class UserDetails
 {
     public int Id { get; set; }

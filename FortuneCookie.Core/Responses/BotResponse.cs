@@ -6,4 +6,9 @@ public static class BotResponse
     {
         return @"I cant recognize your message. Use buttons to communicate with me";
     }
+
+    public static string NewUserResponse()
+    {
+        return @"Hi, I'm a Fortune Cookie bot. I'll send you a prediction every day at 9:00 am";
+    }
 }
