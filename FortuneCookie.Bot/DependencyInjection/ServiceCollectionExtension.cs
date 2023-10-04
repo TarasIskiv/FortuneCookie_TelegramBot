@@ -18,6 +18,12 @@ public static class ServiceCollectionExtension
 
     }
 
+    public static string GetBotToken()
+    {
+        var config = GetConfiguration();
+        return config.GetSection("ConnectionStrings")?.GetSection("TelegramBotKey")?.Get<string>() ?? string.Empty;
+    }
+
     private static IConfiguration GetConfiguration()
     {
         var builder = new ConfigurationBuilder();
@@ -29,4 +35,6 @@ public static class ServiceCollectionExtension
     {
         builder.AddJsonFile("appsettings.json", optional: false);
     }
+    
+     
 }
