@@ -23,8 +23,9 @@ public static class ServiceCollectionExtension
             .AddDbContext<FortuneCookieContext>(options => options.UseNpgsql(databaseConnection?.Get<string>()))
             .AddSingleton<ITelegramBotClient>(client => new TelegramBotClient(token))
             .AddScoped<IUserService, UserService>()
+            .AddScoped<IUserRepository, UserRepository>()
             .AddTransient<ITelegramService, TelegramService>()
-            .AddScoped<IUserRepository, UserRepository>();
+            .AddHttpClient<IPredictionService, PredictionService>(client => { client.BaseAddress = new Uri("https://api.forismatic.com/api/1.0/"); });
     }
     private static IConfiguration GetConfiguration()
     {

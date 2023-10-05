@@ -14,13 +14,15 @@ public class TelegramService : ITelegramService
 {
     private readonly IUserService _userService;
     private readonly ITelegramBotClient _client;
+    private readonly IPredictionService _predictionService;
     private readonly string _startCommand = "/start";
     private MessageInfo _message;
     private UserDetails _currentUser;
-    public TelegramService(IUserService userService, ITelegramBotClient client)
+    public TelegramService(IUserService userService, ITelegramBotClient client, IPredictionService predictionService)
     {
         _userService = userService;
         _client = client;
+        _predictionService = predictionService;
         _message = new();
         _currentUser = new();
     }
