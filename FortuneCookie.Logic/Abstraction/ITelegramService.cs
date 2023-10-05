@@ -5,6 +5,6 @@ namespace FortuneCookie.Logic.Abstraction;
 
 public interface ITelegramService
 {
-    Task SendMessage(long chatId, ResponseMessageType messageType);
+    Task SendMessage(ResponseMessageType messageType);
     Task ReceiveMessage(Update update);
 }

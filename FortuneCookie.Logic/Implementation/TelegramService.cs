@@ -1,5 +1,6 @@
 using FortuneCookie.Core.Buttons;
 using FortuneCookie.Core.Enums;
+using FortuneCookie.Core.Models;
 using FortuneCookie.Core.Responses;
 using FortuneCookie.Logic.Abstraction;
 using Telegram.Bot;
@@ -14,13 +15,16 @@ public class TelegramService : ITelegramService
     private readonly IUserService _userService;
     private readonly ITelegramBotClient _client;
     private readonly string _startCommand = "/start";
-
+    private MessageInfo _message;
+    private UserDetails _currentUser;
     public TelegramService(IUserService userService, ITelegramBotClient client)
     {
         _userService = userService;
         _client = client;
+        _message = new();
+        _currentUser = new();
     }
-    public async Task SendMessage(long chatId, ResponseMessageType messageType)
+    public async Task SendMessage(ResponseMessageType messageType)
     {
         var message = BotResponse.GetDefaultResponse();
         switch (messageType)
@@ -33,42 +37,77 @@ public class TelegramService : ITelegramService
                 break;
             case ResponseMessageType.DailyPrediction:
                 break;
+            case ResponseMessageType.NotificationStatus:
+                await _userService.ChangeNotificationStatus(_currentUser.ChatId);
+                _currentUser = await _userService.GetUser(_currentUser.ChatId);
+                message = BotResponse.NotificationStatusChangedResponse(_currentUser.IsNotificationAllowed);
+                break;
             case ResponseMessageType.ManualDailyPrediction:
+                
                 break;
         }
 
-        var buttons = await GetButtons(chatId);
-        await _client.SendTextMessageAsync(chatId, message, replyMarkup: buttons);
+        var buttons = await GetButtons();
+        await _client.SendTextMessageAsync(_message.ChatId, message, replyMarkup: buttons);
     }
 
     public async Task ReceiveMessage(Update update)
     {
         if (!(update.Type == UpdateType.Message && update.Message!.Type == MessageType.Text)) return;
-        var id = update!.Message!.Chat.Id;
-        var text = update!.Message!.Text;
-        var userName = update.Message.Chat.FirstName;
-
-        var messageType = ResponseMessageType.Default;
-        if (Equals(text, _startCommand))
+        SetMessageInfo(update);
+        
+        var messageType = await GetMessageType();;
+        if (Equals(_message.Text, _startCommand))
         {
             messageType = ResponseMessageType.NewUser;
-            await _userService.RegisterUser(id, userName!);
-        } 
-        await SendMessage(id, messageType);
+            await _userService.RegisterUser(_message.ChatId, _message.Username);
+        }
+
+        _currentUser = await _userService.GetUser(_message.ChatId);
+        await SendMessage(messageType);
     }
 
-    private async Task<IReplyMarkup> GetButtons(long chatId)
+    private async Task<IReplyMarkup> GetButtons()
     {
-        var user = await _userService.GetUser(chatId);
         var buttons = new ReplyKeyboardMarkup(new List<KeyboardButton>());
         buttons.Keyboard = new KeyboardButton[][]  
         {  
             new KeyboardButton[]  
             {
-                new KeyboardButton(ButtonText.GetDailyPredictionButton(user.CurrentDailyPredictionsCount, user.MaxDailyPredictionsCount)),
-                new KeyboardButton(ButtonText.EnableDisableNotificationsButton(user.IsNotificationAllowed))
+                new KeyboardButton(ButtonText.GetDailyPredictionButton(_currentUser.CurrentDailyPredictionsCount, _currentUser.MaxDailyPredictionsCount)),
+                new KeyboardButton(ButtonText.EnableDisableNotificationsButton(_currentUser.IsNotificationAllowed))
             }
         };
         return buttons;
+    }
+
+    private bool IsButtonClicked(UserDetails user)
+    {
+        return Equals(_message.Text,
+                   ButtonText.GetDailyPredictionButton(user.CurrentDailyPredictionsCount,
+                       user.MaxDailyPredictionsCount))
+               || Equals(_message.Text, ButtonText.EnableDisableNotificationsButton(user.IsNotificationAllowed));
+    }
+
+    private async Task<ResponseMessageType> GetMessageType()
+    {
+        var user = await _userService.GetUser(_message.ChatId);
+        if (user is null) return ResponseMessageType.Default;
+        var isButton = IsButtonClicked(user);
+        if (!isButton) return ResponseMessageType.Default;
+
+        return Equals(_message.Text, ButtonText.EnableDisableNotificationsButton(user.IsNotificationAllowed))
+            ? ResponseMessageType.NotificationStatus
+            : ResponseMessageType.ManualDailyPrediction;
+    }
+
+    private void SetMessageInfo(Update update)
+    {
+        _message = new MessageInfo()
+        {
+            ChatId = update!.Message!.Chat.Id,
+            Text = update!.Message!.Text ?? default!,
+            Username = update.Message.Chat.FirstName ?? default!
+        };
     }
 }

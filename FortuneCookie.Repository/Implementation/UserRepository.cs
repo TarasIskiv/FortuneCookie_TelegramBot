@@ -43,4 +43,12 @@ public class UserRepository : IUserRepository
         _context.Update(user);
         await _context.SaveChangesAsync();
     }
+
+    public async Task ChangeNotificationStatus(long id)
+    {
+        var user = await GetUser(id);
+        user.IsNotificationAllowed = !user.IsNotificationAllowed;
+        _context.Update(user);
+        await _context.SaveChangesAsync();
+    }
 }

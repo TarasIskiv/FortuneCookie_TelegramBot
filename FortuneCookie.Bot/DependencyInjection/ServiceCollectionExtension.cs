@@ -23,7 +23,7 @@ public static class ServiceCollectionExtension
             .AddDbContext<FortuneCookieContext>(options => options.UseNpgsql(databaseConnection?.Get<string>()))
             .AddSingleton<ITelegramBotClient>(client => new TelegramBotClient(token))
             .AddScoped<IUserService, UserService>()
-            .AddScoped<ITelegramService, TelegramService>()
+            .AddTransient<ITelegramService, TelegramService>()
             .AddScoped<IUserRepository, UserRepository>();
     }
     private static IConfiguration GetConfiguration()

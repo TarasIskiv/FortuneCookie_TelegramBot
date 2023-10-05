@@ -8,4 +8,5 @@ public interface IUserService
     Task<bool> CheckIfNotificationsAreAllowed(int id);
     Task<UserDetails> GetUser(long chatId);
     Task UpdateDailyPredictionsCount(long chatId);
+    Task ChangeNotificationStatus(long id);
 }

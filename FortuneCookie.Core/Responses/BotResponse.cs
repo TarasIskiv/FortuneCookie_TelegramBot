@@ -11,4 +11,10 @@ public static class BotResponse
     {
         return @"Hi, I'm a Fortune Cookie bot. I'll send you a prediction every day at 9:00 am";
     }
+
+    public static string NotificationStatusChangedResponse(bool isNotificationsAllowed)
+    {
+        var notificationStatus = isNotificationsAllowed ? "on" : "off";
+        return $"You turned {notificationStatus} your notifications";
+    }
 }

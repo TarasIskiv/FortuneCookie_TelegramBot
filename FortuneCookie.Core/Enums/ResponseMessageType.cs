@@ -5,5 +5,6 @@ public enum ResponseMessageType
     Default,
     NewUser,
     DailyPrediction,
+    NotificationStatus,
     ManualDailyPrediction
 }
