@@ -17,4 +17,5 @@ public static class BotResponse
         var notificationStatus = isNotificationsAllowed ? "on" : "off";
         return $"You turned {notificationStatus} your notifications";
     }
+    
 }

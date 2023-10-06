@@ -45,11 +45,14 @@ public class TelegramService : ITelegramService
                 message = BotResponse.NotificationStatusChangedResponse(_currentUser.IsNotificationAllowed);
                 break;
             case ResponseMessageType.ManualDailyPrediction:
-                
+                message = await _predictionService.GetPrediction();
+                await _userService.UpdateDailyPredictionsCount(_currentUser.ChatId);
+                _currentUser = await _userService.GetUser(_currentUser.ChatId);
                 break;
         }
 
-        var buttons = await GetButtons();
+        var predictionsAreBlocked = _currentUser.MaxDailyPredictionsCount == _currentUser.CurrentDailyPredictionsCount;
+        var buttons = GetButtons(predictionsAreBlocked);
         await _client.SendTextMessageAsync(_message.ChatId, message, replyMarkup: buttons);
     }
 
@@ -69,18 +72,35 @@ public class TelegramService : ITelegramService
         await SendMessage(messageType);
     }
 
-    private async Task<IReplyMarkup> GetButtons()
+    private IReplyMarkup GetButtons(bool isPredictionsDisabled)
     {
         var buttons = new ReplyKeyboardMarkup(new List<KeyboardButton>());
-        buttons.Keyboard = new KeyboardButton[][]  
-        {  
-            new KeyboardButton[]  
+        buttons.Keyboard = isPredictionsDisabled ? GetOnlyNotificationsKeyboard() : GetDefaultKeyboard();
+        return buttons;
+    }
+
+    private KeyboardButton[][] GetDefaultKeyboard()
+    {
+        return new KeyboardButton[][]
+        {
+            new KeyboardButton[]
             {
-                new KeyboardButton(ButtonText.GetDailyPredictionButton(_currentUser.CurrentDailyPredictionsCount, _currentUser.MaxDailyPredictionsCount)),
+                new KeyboardButton(ButtonText.GetDailyPredictionButton(_currentUser.CurrentDailyPredictionsCount,
+                    _currentUser.MaxDailyPredictionsCount)),
                 new KeyboardButton(ButtonText.EnableDisableNotificationsButton(_currentUser.IsNotificationAllowed))
             }
         };
-        return buttons;
+    }
+
+    private KeyboardButton[][] GetOnlyNotificationsKeyboard()
+    {
+        return new KeyboardButton[][]
+        {
+            new KeyboardButton[]
+            {
+                new KeyboardButton(ButtonText.EnableDisableNotificationsButton(_currentUser.IsNotificationAllowed))
+            }
+        };
     }
 
     private bool IsButtonClicked(UserDetails user)
