@@ -9,4 +9,5 @@ public interface IUserService
     Task<UserDetails> GetUser(long chatId);
     Task UpdateDailyPredictionsCount(long chatId);
     Task ChangeNotificationStatus(long id);
+    Task RefreshDailyPredictionsCount();
 }

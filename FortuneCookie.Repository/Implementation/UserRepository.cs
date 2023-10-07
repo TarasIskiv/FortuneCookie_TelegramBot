@@ -51,4 +51,12 @@ public class UserRepository : IUserRepository
         _context.Update(user);
         await _context.SaveChangesAsync();
     }
+
+    public async Task RefreshDailyPredictionsCount()
+    {
+        var users = _context.UsersDetails.Where(user => user.CurrentDailyPredictionsCount > 0).ToList();
+        for (int i = 0; i < users.Count(); ++i) users[i].CurrentDailyPredictionsCount = 0;
+        _context.UsersDetails.UpdateRange(users);
+        await _context.SaveChangesAsync();
+    }
 }

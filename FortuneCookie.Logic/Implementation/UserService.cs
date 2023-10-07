@@ -39,4 +39,9 @@ public class UserService : IUserService
     {
         await _userRepository.ChangeNotificationStatus(id);
     }
+
+    public async Task RefreshDailyPredictionsCount()
+    {
+        await _userRepository.RefreshDailyPredictionsCount();
+    }
 }

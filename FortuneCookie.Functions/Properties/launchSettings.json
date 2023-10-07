@@ -2,7 +2,7 @@
   "profiles": {
     "FortuneCookie.Functions": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7123",
+      "commandLineArgs": "host start --useHttps --port 7123",
       "launchBrowser": false
     }
   }
