@@ -10,4 +10,5 @@ public interface IUserService
     Task UpdateDailyPredictionsCount(long chatId);
     Task ChangeNotificationStatus(long id);
     Task RefreshDailyPredictionsCount();
+    Task<List<UserDetails>> GetUsersWithAllowedNotifications();
 }

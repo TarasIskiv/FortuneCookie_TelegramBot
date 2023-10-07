@@ -17,5 +17,10 @@ public static class BotResponse
         var notificationStatus = isNotificationsAllowed ? "on" : "off";
         return $"You turned {notificationStatus} your notifications";
     }
+
+    public static string DailyPredictionResponse(string username, string prediction)
+    {
+        return $"{username}, here's your daily prediction.\n{prediction}";
+    }
     
 }

@@ -44,4 +44,9 @@ public class UserService : IUserService
     {
         await _userRepository.RefreshDailyPredictionsCount();
     }
+
+    public async Task<List<UserDetails>> GetUsersWithAllowedNotifications()
+    {
+        return await _userRepository.GetUsersWithAllowedNotifications();
+    }
 }

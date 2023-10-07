@@ -38,7 +38,8 @@ public class TelegramService : ITelegramService
                 message = BotResponse.NewUserResponse();
                 break;
             case ResponseMessageType.DailyPrediction:
-                break;
+                await SendDailyPredictions();
+                return;
             case ResponseMessageType.NotificationStatus:
                 await _userService.ChangeNotificationStatus(_currentUser.ChatId);
                 _currentUser = await _userService.GetUser(_currentUser.ChatId);
@@ -56,6 +57,18 @@ public class TelegramService : ITelegramService
         await _client.SendTextMessageAsync(_message.ChatId, message, replyMarkup: buttons);
     }
 
+    private async Task SendDailyPredictions()
+    {
+        var users = await _userService.GetUsersWithAllowedNotifications();
+        users.ForEach(async user =>
+        {
+            _currentUser = user;
+            var predictionsAreBlocked = _currentUser.MaxDailyPredictionsCount == _currentUser.CurrentDailyPredictionsCount;
+            var prediction = await _predictionService.GetPrediction();
+            var message = BotResponse.DailyPredictionResponse(user.Username, prediction);
+            await _client.SendTextMessageAsync(user.ChatId, message, replyMarkup:GetButtons(predictionsAreBlocked));
+        });
+    }
     public async Task ReceiveMessage(Update update)
     {
         if (!(update.Type == UpdateType.Message && update.Message!.Type == MessageType.Text)) return;

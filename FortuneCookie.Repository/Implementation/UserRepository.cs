@@ -59,4 +59,9 @@ public class UserRepository : IUserRepository
         _context.UsersDetails.UpdateRange(users);
         await _context.SaveChangesAsync();
     }
+
+    public async Task<List<UserDetails>> GetUsersWithAllowedNotifications()
+    {
+        return await Task.Run(() => _context.UsersDetails.Where(user => user.IsNotificationAllowed).ToList());
+    }
 }
